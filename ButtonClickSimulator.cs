@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -17,6 +17,7 @@ namespace Syy.Tools
         }
 
         List<DataSet> _targets = new List<DataSet>(16);
+        Vector2 _scrollPosition;
 
         void OnGUI()
         {
@@ -33,25 +34,31 @@ namespace Syy.Tools
 
             if (_targets.Any())
             {
-                var isSimualteTargetOption = GUILayout.Width(100);
-                var priorityOption = GUILayout.Width(70);
-                var buttonOption = GUILayout.ExpandWidth(true);
-                using (new EditorGUILayout.HorizontalScope())
+                using (var scroll = new EditorGUILayout.ScrollViewScope(_scrollPosition))
                 {
-                    EditorGUILayout.LabelField("Is simulate target", isSimualteTargetOption);
-                    EditorGUILayout.LabelField("Priority", priorityOption);
-                    EditorGUILayout.LabelField("Button", buttonOption);
-                }
-                foreach (var dataset in _targets)
-                {
-                    if (dataset.Button == null) continue;
+                    _scrollPosition = scroll.scrollPosition;
+
+                    var isSimualteTargetOption = GUILayout.Width(100);
+                    var priorityOption = GUILayout.Width(70);
+                    var buttonOption = GUILayout.ExpandWidth(true);
                     using (new EditorGUILayout.HorizontalScope())
                     {
-                        dataset.IsSimulateTarget = EditorGUILayout.ToggleLeft("", dataset.IsSimulateTarget, isSimualteTargetOption);
-                        using (new EditorGUI.DisabledScope(!dataset.IsSimulateTarget))
+                        EditorGUILayout.LabelField("Is simulate target", isSimualteTargetOption);
+                        EditorGUILayout.LabelField("Priority", priorityOption);
+                        EditorGUILayout.LabelField("Button", buttonOption);
+                    }
+
+                    foreach (var dataset in _targets)
+                    {
+                        if (dataset.Button == null) continue;
+                        using (new EditorGUILayout.HorizontalScope())
                         {
-                            dataset.Priority = EditorGUILayout.IntField("", dataset.Priority, priorityOption);
-                            EditorGUILayout.ObjectField(dataset.Button?.gameObject, typeof(GameObject), true, buttonOption);
+                            dataset.IsSimulateTarget = EditorGUILayout.ToggleLeft("", dataset.IsSimulateTarget, isSimualteTargetOption);
+                            using (new EditorGUI.DisabledScope(!dataset.IsSimulateTarget))
+                            {
+                                dataset.Priority = EditorGUILayout.IntField("", dataset.Priority, priorityOption);
+                                EditorGUILayout.ObjectField(dataset.Button?.gameObject, typeof(GameObject), true, buttonOption);
+                            }
                         }
                     }
                 }
